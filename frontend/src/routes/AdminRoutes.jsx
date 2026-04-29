@@ -1,11 +1,15 @@
 import SideNav from "../components/Layouts/SideNav";
-import Footer from "../components/Layouts/Footer";
 import AppointmentsPage from "../pages/Admin/AppointmentsPage";
 import FacilityPage from "../pages/Admin/FacilityPage";
 import DoctorsPage from "../pages/Admin/DoctorsPage";
 import UserPage from "../pages/Admin/UserPage";
+import DashboardPage from "../pages/Admin/DashboardPage";
 import Login from "../pages/Login";
-import { CssBaseline, Box, Toolbar } from "@mui/material";
+import { CssBaseline, Box, Avatar, IconButton, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
+import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
+import MenuIcon from "@mui/icons-material/Menu";
 
 import {
   Routes,
@@ -14,12 +18,15 @@ import {
 } from "react-router-dom";
 import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthProvider";
+import { useSelector } from "react-redux";
 
 const AdminRoutes = () => {
   const { role, loading } = useContext(AuthContext);
-  const [open, setOpen] = useState(true); // controls sidebar state
-
-  const drawerWidth = open ? 240 : 60; // expanded vs collapsed
+  const user = useSelector((state) => state.auth.user);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const drawerWidth = 280;
 
   // If still loading show nothing or loader
   if (loading) return null;
@@ -41,17 +48,20 @@ const AdminRoutes = () => {
   return (
     <>
       <CssBaseline />
-      <Box sx={{ display: "flex", minHeight: "100vh" }}>
+      <Box sx={{ display: "flex", minHeight: "100vh", backgroundColor: "#fcf8fa" }}>
         {/* Sidebar */}
         <Box
           component="nav"
           sx={{
-            width: drawerWidth,
+            width: { lg: drawerWidth },
             flexShrink: 0,
-            transition: "width 0.3s ease",
           }}
         >
-          <SideNav open={open} setOpen={setOpen} />
+          <SideNav
+            isMobile={isMobile}
+            mobileOpen={mobileOpen}
+            onMobileClose={() => setMobileOpen(false)}
+          />
         </Box>
 
         {/* Main Content */}
@@ -59,26 +69,77 @@ const AdminRoutes = () => {
           component="main"
           sx={{
             flexGrow: 1,
-            p: 3,
+            p: 0,
             width: `calc(100% - ${drawerWidth}px)`,
-            transition: "width 0.3s ease",
+            ...(isMobile ? { width: "100%" } : {}),
             display: "flex",
             flexDirection: "column",
-            m: 1,
           }}
         >
-          <Toolbar />
+          <Box
+            sx={{
+              height: 64,
+              position: "sticky",
+              top: 0,
+              zIndex: 20,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              px: { xs: 1.5, sm: 2.5, md: 3, lg: 4 },
+              backgroundColor: "rgba(255,255,255,0.86)",
+              backdropFilter: "blur(8px)",
+              borderBottom: "1px solid #e2e8f0",
+              boxShadow: "0 1px 3px rgba(15,23,42,.04)",
+            }}
+          >
+            <Stack direction="row" spacing={1} alignItems="center">
+              {isMobile ? (
+                <IconButton onClick={() => setMobileOpen(true)} sx={{ width: 40, height: 40 }}>
+                  <MenuIcon />
+                </IconButton>
+              ) : null}
+              <Typography sx={{ fontSize: { xs: "1.15rem", md: "1.5rem" }, fontWeight: 700, letterSpacing: "-0.01em", fontFamily: "Manrope" }}>
+              MedAdmin
+              </Typography>
+            </Stack>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <IconButton sx={{ width: 40, height: 40 }}>
+                <NotificationsNoneOutlinedIcon />
+              </IconButton>
+              {!isMobile ? (
+                <>
+              <IconButton sx={{ width: 40, height: 40 }}>
+                <SettingsOutlinedIcon />
+              </IconButton>
+              <IconButton sx={{ width: 40, height: 40 }}>
+                <HelpOutlineOutlinedIcon />
+              </IconButton>
+                </>
+              ) : null}
+              <Box>
+                <Typography sx={{ fontSize: "0.9rem", fontWeight: 700, fontFamily: "Manrope" }}>
+                  {user?.username || "Dr. Sarah Smith"}
+                </Typography>
+                {!isMobile ? (
+                  <Typography sx={{ fontSize: "0.8rem", color: "#475569", fontWeight: 600 }}>
+                  Admin
+                  </Typography>
+                ) : null}
+              </Box>
+              <Avatar src={user?.profileImage || ""} sx={{ width: 40, height: 40 }}>
+                {(user?.username || "A").slice(0, 1).toUpperCase()}
+              </Avatar>
+            </Stack>
+          </Box>
+          <Box sx={{ p: { xs: 1.5, sm: 2.5, md: 3, lg: 4 } }}>
           <Routes>
-            <Route path="/" element={<FacilityPage />} />
+            <Route path="/" element={<DashboardPage />} />
             <Route path="/facilities" element={<FacilityPage />} />
             <Route path="/appointments" element={<AppointmentsPage />} />
             <Route path="/doctors" element={<DoctorsPage />} />
             <Route path="/users" element={<UserPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-
-          <Box sx={{ mt: "auto" }}>
-            <Footer />
           </Box>
         </Box>
       </Box>

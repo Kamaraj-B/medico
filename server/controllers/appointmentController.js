@@ -44,6 +44,91 @@ const STATUS_TRANSITIONS = {
 const canTransitionStatus = (fromStatus, toStatus) =>
   Boolean(STATUS_TRANSITIONS[fromStatus]?.includes(toStatus));
 
+exports.getAdminSummary = async (req, res) => {
+  try {
+    if (req.user?.role !== "admin") {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    const allowedDays = new Set([7, 30, 90]);
+    const requestedDays = Number(req.query.days || 30);
+    const days = allowedDays.has(requestedDays) ? requestedDays : 30;
+    const fromDate = new Date();
+    fromDate.setDate(fromDate.getDate() - days);
+    const appointmentDateFilter = { createdAt: { $gte: fromDate } };
+
+    const [appointmentCount, facilityCount, userCount, doctorCount] = await Promise.all([
+      Appointment.countDocuments(appointmentDateFilter),
+      Facility.countDocuments(),
+      User.countDocuments({ role: "user" }),
+      User.countDocuments({ role: "doctor" }),
+    ]);
+
+    const [statusBreakdownRaw, modeBreakdownRaw, monthlyRaw, facilityStatusRaw] = await Promise.all([
+      Appointment.aggregate([
+        { $match: appointmentDateFilter },
+        { $group: { _id: "$status", count: { $sum: 1 } } },
+      ]),
+      Appointment.aggregate([
+        { $match: appointmentDateFilter },
+        { $group: { _id: "$mode", count: { $sum: 1 } } },
+      ]),
+      Appointment.aggregate([
+        { $match: appointmentDateFilter },
+        {
+          $group: {
+            _id: {
+              year: { $year: "$createdAt" },
+              month: { $month: "$createdAt" },
+            },
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { "_id.year": 1, "_id.month": 1 } },
+      ]),
+      Facility.aggregate([
+        { $group: { _id: "$verificationStatus", count: { $sum: 1 } } },
+      ]),
+    ]);
+
+    const statusBreakdown = statusBreakdownRaw.reduce((acc, row) => {
+      acc[row._id || "unknown"] = row.count;
+      return acc;
+    }, {});
+
+    const modeBreakdown = modeBreakdownRaw.reduce((acc, row) => {
+      acc[row._id || "unknown"] = row.count;
+      return acc;
+    }, {});
+
+    const facilityStatusBreakdown = facilityStatusRaw.reduce((acc, row) => {
+      acc[row._id || "unknown"] = row.count;
+      return acc;
+    }, {});
+
+    const monthlyAppointments = monthlyRaw.map((row) => ({
+      label: `${row._id.year}-${String(row._id.month).padStart(2, "0")}`,
+      count: row.count,
+    }));
+
+    return res.json({
+      counts: {
+        appointments: appointmentCount,
+        facilities: facilityCount,
+        doctors: doctorCount,
+        users: userCount,
+      },
+      days,
+      statusBreakdown,
+      modeBreakdown,
+      facilityStatusBreakdown,
+      monthlyAppointments,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 
 
 // Create a new appointment

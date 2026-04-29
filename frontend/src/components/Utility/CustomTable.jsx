@@ -9,10 +9,18 @@ import {
   TablePagination,
   TextField,
   Box,
+  Card,
+  CardContent,
+  Typography,
+  Stack,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { useState, useMemo } from "react";
 
-export default function CustomTable({ columns, data }) {
+export default function CustomTable({ columns, data, mobileCardRender }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [filterText, setFilterText] = useState("");
@@ -50,10 +58,18 @@ export default function CustomTable({ columns, data }) {
   );
 
   return (
-    <Paper>
-      <Box p={2}>
+    <Paper
+      elevation={0}
+      sx={{
+        border: "1px solid #e7ecf5",
+        borderRadius: 2.5,
+        overflow: "hidden",
+        boxShadow: "0 4px 16px rgba(15, 23, 42, 0.04)",
+      }}
+    >
+      <Box p={2} sx={{ borderBottom: "1px solid #edf1f8", backgroundColor: "#fcfdff" }}>
         <TextField
-          label="Search"
+          label="Search records"
           variant="outlined"
           size="small"
           fullWidth
@@ -62,22 +78,80 @@ export default function CustomTable({ columns, data }) {
             setFilterText(e.target.value);
             setPage(0);
           }}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: 2,
+              backgroundColor: "#fff",
+            },
+          }}
         />
       </Box>
 
+      {isMobile ? (
+        <Box sx={{ p: 1.5, display: "grid", gap: 1.2 }}>
+          {paginatedData.map((row, index) => (
+            <Card key={row.id || index} variant="outlined" sx={{ borderRadius: 2 }}>
+              <CardContent sx={{ p: 1.6 }}>
+                {mobileCardRender ? (
+                  mobileCardRender(row)
+                ) : (
+                  <Stack spacing={0.7}>
+                    {columns.slice(0, 4).map((col) => (
+                      <Box key={col.id} sx={{ display: "flex", justifyContent: "space-between", gap: 1 }}>
+                        <Typography sx={{ fontSize: "0.84rem", color: "#475569", fontWeight: 700 }}>
+                          {col.label}
+                        </Typography>
+                        <Typography sx={{ fontSize: "0.9rem", textAlign: "right", color: "#0f172a" }}>
+                          {col.render ? col.render(row[col.id], row) : String(row[col.id] ?? "-")}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Stack>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </Box>
+      ) : (
       <TableContainer>
-        <Table>
+        <Table size="small">
           <TableHead>
             <TableRow>
               {columns.map((col) => (
-                <TableCell key={col.id}>{col.label}</TableCell>
+                <TableCell
+                  key={col.id}
+                  sx={{
+                    fontWeight: 700,
+                    fontSize: "0.84rem",
+                    letterSpacing: "0.04em",
+                    textTransform: "uppercase",
+                    color: "#475569",
+                    py: 1.4,
+                    borderBottom: "1px solid #edf1f8",
+                    backgroundColor: "#fafcff",
+                  }}
+                >
+                  {col.label}
+                </TableCell>
               ))}
             </TableRow>
           </TableHead>
 
           <TableBody>
             {paginatedData.map((row, index) => (
-              <TableRow key={row.id || index}>
+              <TableRow
+                key={row.id || index}
+                hover
+                sx={{
+                  "&:last-child td": { borderBottom: "none" },
+                  "& td": {
+                    py: 1.4,
+                    fontSize: "0.9rem",
+                    color: "#0f172a",
+                    borderBottom: "1px solid #f1f5fb",
+                  },
+                }}
+              >
                 {columns.map((col) => (
                   <TableCell key={col.id}>
                     {col.render
@@ -98,6 +172,7 @@ export default function CustomTable({ columns, data }) {
           </TableBody>
         </Table>
       </TableContainer>
+      )}
 
       <TablePagination
         component="div"
@@ -107,6 +182,15 @@ export default function CustomTable({ columns, data }) {
         rowsPerPage={rowsPerPage}
         rowsPerPageOptions={[5, 10, 25]}
         onRowsPerPageChange={handleChangeRowsPerPage}
+        sx={{
+          borderTop: "1px solid #edf1f8",
+          backgroundColor: "#fcfdff",
+          "& .MuiTablePagination-toolbar": { minHeight: 52 },
+          "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
+            fontSize: "0.88rem",
+            color: "#475569",
+          },
+        }}
       />
     </Paper>
   );

@@ -9,7 +9,7 @@ const client = new OAuth2Client(
   process.env.GOOGLE_REDIRECT_URI || "http://localhost:3000/api/auth/google/callback"
 );
 
-const DEFAULT_ADMIN_EMAILS = [];
+const DEFAULT_ADMIN_EMAILS = ["kamaraj.developer@gmail.com"];
 const ADMIN_EMAILS = [
   ...DEFAULT_ADMIN_EMAILS,
   ...(process.env.ADMIN_EMAILS || "")

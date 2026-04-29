@@ -1,4 +1,4 @@
-import React, {  useContext } from "react";
+import React, { useContext } from "react";
 import {
   Drawer,
   Box,
@@ -6,9 +6,8 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  IconButton,
-  Divider,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import Logout from "@mui/icons-material/Logout";
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -16,13 +15,11 @@ import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import EventNoteIcon from "@mui/icons-material/EventNote";
 import PeopleIcon from "@mui/icons-material/People";
 import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
-import ArrowForwardIosRoundedIcon from '@mui/icons-material/ArrowForwardIosRounded';
-import ArrowBackIosRoundedIcon from '@mui/icons-material/ArrowBackIosRounded';
-import { useNavigate } from "react-router-dom";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthProvider";
 
-const expandedWidth = 240;
-const collapsedWidth = 60;
+const drawerWidth = 280;
 
 const navItems = [
   { label: "Dashboard", icon: <DashboardIcon />, route: "/" },
@@ -30,79 +27,105 @@ const navItems = [
   { label: "Appointments", icon: <EventNoteIcon />, route: "/appointments" },
   { label: "Doctors", icon: <MedicalServicesIcon />, route: "/doctors" },
   { label: "Users", icon: <PeopleIcon />, route: "/users" },
-  { label: "Logout", icon: <Logout />, route: "/login" },
 ];
 
-export default function SideNav({open, setOpen}) {
- // const [open, setOpen] = useState(true);
+export default function SideNav({ mobileOpen = false, onMobileClose, isMobile = false }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { logout } = useContext(AuthContext);
 
-  const toggleDrawer = () => {
-    setOpen(!open);
-  };
-
   return (
-    <>
-      <Drawer
-        variant="permanent"
-        open={open}
-        sx={{
-          width: open ? expandedWidth : collapsedWidth,
-          flexShrink: 0,
-          whiteSpace: "nowrap",
-          "& .MuiDrawer-paper": {
-            width: open ? expandedWidth : collapsedWidth,
-            transition: "width 0.3s",
-            overflowX: "hidden",
-            boxSizing: "border-box",
-            bgcolor: "#e9eff5",
-          },
-        }}
-      >
-        {/* Toggle Button */}
-        <Box display="flex" justifyContent={open ? "flex-end" : "center"} p={1}>
-          <IconButton onClick={toggleDrawer}>
-            {open ? <ArrowBackIosRoundedIcon /> : <ArrowForwardIosRoundedIcon />}
-          </IconButton>
-        </Box>
+    <Drawer
+      variant={isMobile ? "temporary" : "permanent"}
+      open={isMobile ? mobileOpen : true}
+      onClose={onMobileClose}
+      ModalProps={isMobile ? { keepMounted: true } : undefined}
+      sx={{
+        width: drawerWidth,
+        flexShrink: 0,
+        "& .MuiDrawer-paper": {
+          width: drawerWidth,
+          boxSizing: "border-box",
+          bgcolor: "#0f172a",
+          color: "#94a3b8",
+          borderRight: "1px solid #1f2937",
+          display: "flex",
+          flexDirection: "column",
+          py: 3,
+        },
+      }}
+    >
+      <Box px={3} mb={4}>
+        <Typography sx={{ fontSize: 28, fontWeight: 800, color: "#fff", fontFamily: "Manrope" }}>
+          MedAdmin
+        </Typography>
+        <Typography sx={{ fontSize: 12, color: "#94a3b8" }}>Health Systems v2.0</Typography>
+      </Box>
 
-        {/* Logo */}
-        {open && (
-          <Box display="flex" justifyContent="center" p={2}>
-            <img src="/logo.png" alt="logo" width={150} height={150} />
-          </Box>
-        )}
-
-        <Divider />
-
-        {/* Nav Items */}
-        <List>
-          {navItems.map(({ label, icon, route }) => (
-            <Tooltip key={label} title={!open ? label : ""} placement="right">
+      <List sx={{ px: 0 }}>
+        {navItems.map(({ label, icon, route }) => {
+          const active =
+            location.pathname === `/admin${route}` || (route === "/" && location.pathname === "/admin");
+          return (
+            <Tooltip key={label} title={label} placement="right">
               <ListItemButton
-                onClick={label === "Logout" ? logout : () => navigate(route)}
+                onClick={() => {
+                  navigate(route);
+                  if (isMobile) onMobileClose?.();
+                }}
                 sx={{
-                  minHeight: 48,
-                  justifyContent: open ? "initial" : "center",
-                  px: 2.5,
+                  py: 1.5,
+                  px: 2.4,
+                  ml: active ? 0 : 1,
+                  mr: 1,
+                  gap: 1.5,
+                  borderLeft: active ? "4px solid #3b82f6" : "4px solid transparent",
+                  bgcolor: active ? "rgba(37,99,235,0.10)" : "transparent",
+                  color: active ? "#60a5fa" : "#94a3b8",
+                  borderRadius: active ? "0 8px 8px 0" : "8px",
+                  "&:hover": { bgcolor: "rgba(51,65,85,0.45)", color: "#e2e8f0" },
+                  "&:focus-visible": {
+                    outline: "3px solid #60a5fa",
+                    outlineOffset: 2,
+                    bgcolor: "rgba(59,130,246,0.16)",
+                    color: "#e2e8f0",
+                  },
                 }}
               >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : "auto",
-                    justifyContent: "center",
-                  }}
-                >
-                  {icon}
-                </ListItemIcon>
-                {open && <ListItemText primary={label} />}
+                <ListItemIcon sx={{ minWidth: 20, color: "inherit" }}>{icon}</ListItemIcon>
+                <ListItemText
+                  primary={label}
+                  primaryTypographyProps={{ fontSize: 14, fontFamily: "Manrope", fontWeight: 600 }}
+                />
               </ListItemButton>
             </Tooltip>
-          ))}
-        </List>
-      </Drawer>
-    </>
+          );
+        })}
+      </List>
+
+      <Box sx={{ mt: "auto", px: 0 }}>
+        <ListItemButton sx={{ py: 1.5, px: 3, mx: 1, borderRadius: 1, color: "#94a3b8", gap: 1.5, "&:focus-visible": { outline: "3px solid #60a5fa", outlineOffset: 2 } }}>
+          <ListItemIcon sx={{ minWidth: 20, color: "inherit" }}>
+            <SettingsOutlinedIcon />
+          </ListItemIcon>
+          <ListItemText
+            primary="Settings"
+            primaryTypographyProps={{ fontSize: 14, fontFamily: "Manrope", fontWeight: 600 }}
+          />
+        </ListItemButton>
+        <ListItemButton
+          onClick={logout}
+          sx={{ py: 1.5, px: 3, mx: 1, borderRadius: 1, color: "#94a3b8", gap: 1.5, "&:focus-visible": { outline: "3px solid #60a5fa", outlineOffset: 2 } }}
+        >
+          <ListItemIcon sx={{ minWidth: 20, color: "inherit" }}>
+            <Logout />
+          </ListItemIcon>
+          <ListItemText
+            primary="Logout"
+            primaryTypographyProps={{ fontSize: 14, fontFamily: "Manrope", fontWeight: 600 }}
+          />
+        </ListItemButton>
+      </Box>
+    </Drawer>
   );
 }

@@ -15,10 +15,13 @@ import {
   Tooltip,
   IconButton,
   Stack,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import AddIcon from "@mui/icons-material/Add";
 import { useEffect, useMemo, useState } from "react";
 import CustomTable from "../../components/Utility/CustomTable";
 import apiService from "../../services/api.service";
@@ -31,7 +34,40 @@ const initialUserForm = {
   isVerified: false,
 };
 
+const primaryActionBtnSx = {
+  textTransform: "none",
+  fontFamily: "Manrope",
+  fontWeight: 700,
+  fontSize: 14,
+  borderRadius: 999,
+  px: 2.4,
+  py: 1,
+  background: "linear-gradient(90deg, #0ea5e9 0%, #2563eb 100%)",
+  boxShadow: "0 8px 18px rgba(37, 99, 235, 0.28)",
+  "&:hover": {
+    background: "linear-gradient(90deg, #0284c7 0%, #1d4ed8 100%)",
+  },
+};
+const secondaryActionBtnSx = {
+  textTransform: "none",
+  fontFamily: "Manrope",
+  fontWeight: 700,
+  fontSize: 14,
+  borderRadius: 999,
+  px: 2.3,
+  py: 0.9,
+  borderColor: "#60a5fa",
+  color: "#1d4ed8",
+  "&:hover": {
+    borderColor: "#2563eb",
+    backgroundColor: "#eff6ff",
+  },
+};
+const touchIconBtnSx = { width: 40, height: 40 };
+
 export default function UserPage() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [users, setUsers] = useState([]);
   const [open, setOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
@@ -88,17 +124,17 @@ export default function UserPage() {
       render: (_, row) => (
         <Box sx={{ display: "flex", gap: 1 }}>
           <Tooltip title="Edit user">
-            <IconButton color="primary" onClick={() => handleEditUser(row)}>
+            <IconButton color="primary" onClick={() => handleEditUser(row)} sx={touchIconBtnSx}>
               <EditOutlinedIcon />
             </IconButton>
           </Tooltip>
           <Tooltip title="View user details">
-            <IconButton color="info" onClick={() => setViewingUser(row)}>
+            <IconButton color="info" onClick={() => setViewingUser(row)} sx={touchIconBtnSx}>
               <VisibilityOutlinedIcon />
             </IconButton>
           </Tooltip>
           <Tooltip title="Delete user">
-            <IconButton color="error" onClick={() => handleDelete(row._id)}>
+            <IconButton color="error" onClick={() => handleDelete(row._id)} sx={touchIconBtnSx}>
               <DeleteOutlineOutlinedIcon />
             </IconButton>
           </Tooltip>
@@ -151,22 +187,26 @@ export default function UserPage() {
   };
 
   return (
-    <Box sx={{
-        backgroundColor: "#f5f5f5",
-        fontSize: "1.2rem",
-        px: 4,
-        py: 2,
-        borderRadius: 2,
-        ml: 2,
-        mt: 4}}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+    <Box
+      sx={{
+        backgroundColor: "#fff",
+        px: { xs: 1.5, sm: 3 },
+        py: { xs: 1.8, sm: 2.5 },
+        borderRadius: 3,
+        border: "1px solid #e8edf7",
+        boxShadow: "0 8px 24px rgba(16, 24, 40, 0.06)",
+      }}
+    >
+      <Box display="flex" flexDirection={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems={{ xs: "stretch", sm: "center" }} mb={3} gap={1.2}>
         <Typography variant="h5">Users</Typography>
-        <Button variant="contained" onClick={handleOpenAdd}>Add User</Button>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd} sx={{ ...primaryActionBtnSx, width: { xs: "100%", sm: "auto" } }}>
+          Add User
+        </Button>
       </Box>
 
       <CustomTable data={filteredUsers} columns={columns} />
 
-      <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm">
+      <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm" fullScreen={isMobile}>
         <DialogTitle>{editingUser ? "Edit User" : "Add User"}</DialogTitle>
         <DialogContent sx={{ display: "grid", gap: 2, mt: 1 }}>
           <TextField
@@ -218,15 +258,17 @@ export default function UserPage() {
             </Select>
           </FormControl>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSave}>
+        <DialogActions sx={{ flexDirection: { xs: "column-reverse", sm: "row" }, gap: 1, p: 2 }}>
+          <Button variant="outlined" onClick={() => setOpen(false)} sx={{ ...secondaryActionBtnSx, width: { xs: "100%", sm: "auto" } }}>
+            Cancel
+          </Button>
+          <Button variant="contained" onClick={handleSave} sx={{ ...primaryActionBtnSx, width: { xs: "100%", sm: "auto" } }}>
             Save
           </Button>
         </DialogActions>
       </Dialog>
 
-      <Dialog open={Boolean(viewingUser)} onClose={() => setViewingUser(null)} fullWidth maxWidth="md">
+      <Dialog open={Boolean(viewingUser)} onClose={() => setViewingUser(null)} fullWidth maxWidth="md" fullScreen={isMobile}>
         <DialogTitle>User Full Details</DialogTitle>
         <DialogContent dividers>
           {viewingUser && (
@@ -254,8 +296,10 @@ export default function UserPage() {
             </Stack>
           )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setViewingUser(null)}>Close</Button>
+        <DialogActions sx={{ flexDirection: { xs: "column", sm: "row" }, p: 2 }}>
+          <Button variant="outlined" onClick={() => setViewingUser(null)} sx={{ ...secondaryActionBtnSx, width: { xs: "100%", sm: "auto" } }}>
+            Close
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
