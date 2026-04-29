@@ -20,6 +20,7 @@ import {
 } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import AddIcon from "@mui/icons-material/Add";
 import { useEffect, useMemo, useState } from "react";
 import CustomTable from "../../components/Utility/CustomTable";
 import apiService from "../../services/api.service";
@@ -43,6 +44,36 @@ const defaultDoctorAvailability = (days = [], existing = {}) => {
     }
   });
   return map;
+};
+
+const primaryActionBtnSx = {
+  textTransform: "none",
+  fontFamily: "Manrope",
+  fontWeight: 700,
+  fontSize: 14,
+  borderRadius: 999,
+  px: 2.4,
+  py: 1,
+  background: "linear-gradient(90deg, #0ea5e9 0%, #2563eb 100%)",
+  boxShadow: "0 8px 18px rgba(37, 99, 235, 0.28)",
+  "&:hover": {
+    background: "linear-gradient(90deg, #0284c7 0%, #1d4ed8 100%)",
+  },
+};
+const secondaryActionBtnSx = {
+  textTransform: "none",
+  fontFamily: "Manrope",
+  fontWeight: 700,
+  fontSize: 14,
+  borderRadius: 999,
+  px: 2.3,
+  py: 0.9,
+  borderColor: "#60a5fa",
+  color: "#1d4ed8",
+  "&:hover": {
+    borderColor: "#2563eb",
+    backgroundColor: "#eff6ff",
+  },
 };
 
 export default function DoctorsPage() {
@@ -179,18 +210,17 @@ export default function DoctorsPage() {
   return (
     <Box
       sx={{
-        backgroundColor: "#f5f5f5",
-        fontSize: "1.2rem",
-        px: 4,
-        py: 2,
-        borderRadius: 2,
-        ml: 2,
-        mt: 4,
+        backgroundColor: "#fff",
+        px: 3,
+        py: 2.5,
+        borderRadius: 3,
+        border: "1px solid #e8edf7",
+        boxShadow: "0 8px 24px rgba(16, 24, 40, 0.06)",
       }}
     >
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h5">Doctors</Typography>
-        <Button variant="contained" onClick={handleOpenAdd}>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd} sx={primaryActionBtnSx}>
           Add Doctor
         </Button>
       </Box>
@@ -322,8 +352,10 @@ export default function DoctorsPage() {
           </FormControl>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSave}>
+          <Button variant="outlined" onClick={() => setOpen(false)} sx={secondaryActionBtnSx}>
+            Cancel
+          </Button>
+          <Button variant="contained" onClick={handleSave} sx={primaryActionBtnSx}>
             Save
           </Button>
         </DialogActions>

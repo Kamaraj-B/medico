@@ -19,6 +19,7 @@ import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import CustomTable from "../../components/Utility/CustomTable";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import apiService from "../../services/api.service";
+import { useSearchParams } from "react-router-dom";
 
 const statusColor = (status) => {
   if (status === "scheduled") return "success";
@@ -26,8 +27,24 @@ const statusColor = (status) => {
   if (status === "completed") return "info";
   return "error";
 };
+const secondaryActionBtnSx = {
+  textTransform: "none",
+  fontFamily: "Manrope",
+  fontWeight: 700,
+  fontSize: 14,
+  borderRadius: 999,
+  px: 2.3,
+  py: 0.9,
+  borderColor: "#60a5fa",
+  color: "#1d4ed8",
+  "&:hover": {
+    borderColor: "#2563eb",
+    backgroundColor: "#eff6ff",
+  },
+};
 
 export default function AppointmentsPage() {
+  const [searchParams] = useSearchParams();
   const [appointments, setAppointments] = useState([]);
   const [selected, setSelected] = useState(null);
   const [filters, setFilters] = useState({
@@ -45,6 +62,26 @@ export default function AppointmentsPage() {
     totalPages: 1,
     total: 0,
   });
+
+  useEffect(() => {
+    const fromDate = searchParams.get("fromDate") || "";
+    const toDate = searchParams.get("toDate") || "";
+    const status = searchParams.get("status") || "All";
+    const mode = searchParams.get("mode") || "All";
+    const doctorName = searchParams.get("doctorName") || "";
+    const patientName = searchParams.get("patientName") || "";
+
+    setFilters((prev) => ({
+      ...prev,
+      fromDate,
+      toDate,
+      status,
+      mode,
+      doctorName,
+      patientName,
+      page: 1,
+    }));
+  }, [searchParams]);
 
   const loadAppointments = useCallback(async () => {
     try {
@@ -116,7 +153,17 @@ export default function AppointmentsPage() {
   ];
 
   return (
-    <Box sx={{ backgroundColor: "#f5f5f5", px: 4, py: 2, borderRadius: 2, boxShadow: 4, mb: 2 }}>
+    <Box
+      sx={{
+        backgroundColor: "#fff",
+        px: 3,
+        py: 2.5,
+        borderRadius: 3,
+        border: "1px solid #e8edf7",
+        boxShadow: "0 8px 24px rgba(16, 24, 40, 0.06)",
+        mb: 2,
+      }}
+    >
       <Typography variant="h5" mb={3}>
         Appointments
       </Typography>
@@ -226,7 +273,9 @@ export default function AppointmentsPage() {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setSelected(null)}>Close</Button>
+          <Button variant="outlined" onClick={() => setSelected(null)} sx={secondaryActionBtnSx}>
+            Close
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

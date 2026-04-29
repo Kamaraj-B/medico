@@ -24,6 +24,7 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import GroupAddOutlinedIcon from "@mui/icons-material/GroupAddOutlined";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 import HighlightOffOutlinedIcon from "@mui/icons-material/HighlightOffOutlined";
+import AddIcon from "@mui/icons-material/Add";
 import { useState, useEffect } from "react";
 import  apiService  from "../../services/api.service";
 
@@ -56,6 +57,36 @@ const updateFacility = async (id, data) => {
     console.error("Error updating facility:", error);
     return error;
   }
+};
+
+const primaryActionBtnSx = {
+  textTransform: "none",
+  fontFamily: "Manrope",
+  fontWeight: 700,
+  fontSize: 14,
+  borderRadius: 999,
+  px: 2.4,
+  py: 1,
+  background: "linear-gradient(90deg, #0ea5e9 0%, #2563eb 100%)",
+  boxShadow: "0 8px 18px rgba(37, 99, 235, 0.28)",
+  "&:hover": {
+    background: "linear-gradient(90deg, #0284c7 0%, #1d4ed8 100%)",
+  },
+};
+const secondaryActionBtnSx = {
+  textTransform: "none",
+  fontFamily: "Manrope",
+  fontWeight: 700,
+  fontSize: 14,
+  borderRadius: 999,
+  px: 2.3,
+  py: 0.9,
+  borderColor: "#60a5fa",
+  color: "#1d4ed8",
+  "&:hover": {
+    borderColor: "#2563eb",
+    backgroundColor: "#eff6ff",
+  },
 };
 
 export default function FacilityPage() {
@@ -211,13 +242,12 @@ export default function FacilityPage() {
   return (
     <Box
       sx={{
-        backgroundColor: "#f5f5f5",
-        fontSize: "1.2rem",
-        px: 4,
-        py: 2,
-        borderRadius: 2,
-        boxShadow: 4,
-        //mt: 1,
+        backgroundColor: "#fff",
+        px: 3,
+        py: 2.5,
+        borderRadius: 3,
+        border: "1px solid #e8edf7",
+        boxShadow: "0 8px 24px rgba(16, 24, 40, 0.06)",
         mb: 2,
       }}
     >
@@ -228,7 +258,7 @@ export default function FacilityPage() {
         mb={3}
       >
         <Typography variant="h5">Facility Details</Typography>
-        <Button variant="contained" onClick={openModel}>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={openModel} sx={primaryActionBtnSx}>
           Add Facility
         </Button>
       </Box>
@@ -285,8 +315,10 @@ export default function FacilityPage() {
           </FormControl>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setMappingOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSaveMapping}>
+          <Button variant="outlined" onClick={() => setMappingOpen(false)} sx={secondaryActionBtnSx}>
+            Cancel
+          </Button>
+          <Button variant="contained" onClick={handleSaveMapping} sx={primaryActionBtnSx}>
             Save Mapping
           </Button>
         </DialogActions>

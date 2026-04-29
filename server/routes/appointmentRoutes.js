@@ -6,6 +6,7 @@ const {protect} = require('../middlewares/auth.middleware');
 
 router.post('/',protect,appointmentController.createAppointment);
 router.get('/',protect,appointmentController.getAppointments);
+router.get('/admin/summary', protect, appointmentController.getAdminSummary);
 router.get('/:id',protect,appointmentController.getAppointmentById);
 router.put('/:id',protect,appointmentController.updateAppointment);
 router.delete('/:id', protect,appointmentController.deleteAppointment);
