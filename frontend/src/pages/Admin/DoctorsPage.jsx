@@ -17,6 +17,8 @@ import {
   ListItemText,
   Tooltip,
   IconButton,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
@@ -75,8 +77,11 @@ const secondaryActionBtnSx = {
     backgroundColor: "#eff6ff",
   },
 };
+const touchIconBtnSx = { width: 40, height: 40 };
 
 export default function DoctorsPage() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [doctors, setDoctors] = useState([]);
   const [facilities, setFacilities] = useState([]);
   const [open, setOpen] = useState(false);
@@ -135,12 +140,12 @@ export default function DoctorsPage() {
       render: (_, row) => (
         <Box sx={{ display: "flex", gap: 1 }}>
           <Tooltip title="Edit doctor">
-            <IconButton color="primary" onClick={() => handleEdit(row)}>
+            <IconButton color="primary" onClick={() => handleEdit(row)} sx={touchIconBtnSx}>
               <EditOutlinedIcon />
             </IconButton>
           </Tooltip>
           <Tooltip title="Delete doctor">
-            <IconButton color="error" onClick={() => handleDelete(row._id)}>
+            <IconButton color="error" onClick={() => handleDelete(row._id)} sx={touchIconBtnSx}>
               <DeleteOutlineOutlinedIcon />
             </IconButton>
           </Tooltip>
@@ -211,25 +216,25 @@ export default function DoctorsPage() {
     <Box
       sx={{
         backgroundColor: "#fff",
-        px: 3,
-        py: 2.5,
+        px: { xs: 1.5, sm: 3 },
+        py: { xs: 1.8, sm: 2.5 },
         borderRadius: 3,
         border: "1px solid #e8edf7",
         boxShadow: "0 8px 24px rgba(16, 24, 40, 0.06)",
       }}
     >
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+      <Box display="flex" flexDirection={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems={{ xs: "stretch", sm: "center" }} mb={3} gap={1.2}>
         <Typography variant="h5">Doctors</Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd} sx={primaryActionBtnSx}>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd} sx={{ ...primaryActionBtnSx, width: { xs: "100%", sm: "auto" } }}>
           Add Doctor
         </Button>
       </Box>
 
       <CustomTable data={doctors} columns={columns} />
 
-      <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm">
+      <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm" fullScreen={isMobile}>
         <DialogTitle>{editingDoctor ? "Edit Doctor" : "Add Doctor"}</DialogTitle>
-        <DialogContent sx={{ display: "grid", gap: 2, mt: 1 }}>
+        <DialogContent sx={{ display: "grid", gap: 2, mt: 1, px: { xs: 1.5, sm: 3 } }}>
           <TextField
             label="Name"
             value={formData.username}
@@ -293,7 +298,7 @@ export default function DoctorsPage() {
               <Typography variant="subtitle2" sx={{ mb: 1 }}>
                 {day} Time Slots
               </Typography>
-              <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1 }}>
+              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1 }}>
                 <TextField
                   label="Day Slot (e.g. 09:00-13:00)"
                   value={formData.availableTime?.[day]?.day || ""}
@@ -351,11 +356,11 @@ export default function DoctorsPage() {
             </Select>
           </FormControl>
         </DialogContent>
-        <DialogActions>
-          <Button variant="outlined" onClick={() => setOpen(false)} sx={secondaryActionBtnSx}>
+        <DialogActions sx={{ flexDirection: { xs: "column-reverse", sm: "row" }, gap: 1, p: 2 }}>
+          <Button variant="outlined" onClick={() => setOpen(false)} sx={{ ...secondaryActionBtnSx, width: { xs: "100%", sm: "auto" } }}>
             Cancel
           </Button>
-          <Button variant="contained" onClick={handleSave} sx={primaryActionBtnSx}>
+          <Button variant="contained" onClick={handleSave} sx={{ ...primaryActionBtnSx, width: { xs: "100%", sm: "auto" } }}>
             Save
           </Button>
         </DialogActions>

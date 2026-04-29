@@ -20,6 +20,8 @@ import {
   Stepper,
   Step,
   StepLabel,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
@@ -88,6 +90,8 @@ const defaultInitialValues = {
 
 
 const FacilityForm = ({ open, handleClose, onSubmit, initialData = null }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [activeStep, setActiveStep] = useState(0);
   const handleNext = () => setActiveStep((prev) => prev + 1);
   const handleBack = () => setActiveStep((prev) => prev - 1);
@@ -112,6 +116,7 @@ const FacilityForm = ({ open, handleClose, onSubmit, initialData = null }) => {
       onClose={handleClose}
       maxWidth="md"
       fullWidth
+      fullScreen={isMobile}
       scroll="paper"
     >
       <DialogTitle>Add/Edit Facility</DialogTitle>
@@ -136,7 +141,7 @@ const FacilityForm = ({ open, handleClose, onSubmit, initialData = null }) => {
         }) => (
           <Form>
             <DialogContent dividers>
-              <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 3 }}>
+              <Stepper activeStep={activeStep} alternativeLabel={!isMobile} sx={{ mb: 3 }}>
                 {steps.map((label) => (
                   <Step key={label}>
                     <StepLabel>{label}</StepLabel>
@@ -170,7 +175,6 @@ const FacilityForm = ({ open, handleClose, onSubmit, initialData = null }) => {
                           value={values.type}
                           onChange={handleChange}
                           label="Type"
-                          style={{ width: "120px" }}
                         >
                           <MenuItem value="hospital">Hospital</MenuItem>
                           <MenuItem value="clinic">Clinic</MenuItem>
@@ -267,7 +271,7 @@ const FacilityForm = ({ open, handleClose, onSubmit, initialData = null }) => {
                 {activeStep === 3 && (
                   <>
                     <Grid item xs={12}>
-                      <Grid item xs={6} md={6}>
+                      <Grid item xs={12} md={6}>
   <FormControl fullWidth>
                         <InputLabel>Available Days</InputLabel>
                         <Select
@@ -277,7 +281,6 @@ const FacilityForm = ({ open, handleClose, onSubmit, initialData = null }) => {
                           onChange={handleChange}
                           input={<OutlinedInput label="Available Days" />}
                           renderValue={() => "Select"}
-                          style={{ width: "170px" }}
                         >
                           {daysOfWeek.map((day) => (
                             <MenuItem key={day} value={day}>
@@ -291,7 +294,7 @@ const FacilityForm = ({ open, handleClose, onSubmit, initialData = null }) => {
                        
                       </FormControl>
                       </Grid>
-                         <Grid item xs={6} md={6} sx={{ mt: 2 }}>
+                         <Grid item xs={12} md={6} sx={{ mt: 2 }}>
                  <Stack direction="row" spacing={1}>
                          
                          {values.availableDays.map((day) => (
@@ -404,11 +407,11 @@ const FacilityForm = ({ open, handleClose, onSubmit, initialData = null }) => {
               </Grid>
             </DialogContent>
 
-            <DialogActions>
-              <Button onClick={handleClose}>Cancel</Button>
-              {activeStep > 0 && <Button onClick={handleBack}>Back</Button>}
+            <DialogActions sx={{ flexDirection: { xs: "column-reverse", sm: "row" }, gap: 1.2, p: 2 }}>
+              <Button onClick={handleClose} sx={{ width: { xs: "100%", sm: "auto" } }}>Cancel</Button>
+              {activeStep > 0 && <Button onClick={handleBack} sx={{ width: { xs: "100%", sm: "auto" } }}>Back</Button>}
               {!isLastStep ? (
-                <Button onClick={handleNext} variant="contained">
+                <Button onClick={handleNext} variant="contained" sx={{ width: { xs: "100%", sm: "auto" } }}>
                   Next
                 </Button>
               ) : (
@@ -416,6 +419,7 @@ const FacilityForm = ({ open, handleClose, onSubmit, initialData = null }) => {
                   type="submit"
                   variant="contained"
                   disabled={isSubmitting}
+                  sx={{ width: { xs: "100%", sm: "auto" } }}
                 >
                   Submit
                 </Button>

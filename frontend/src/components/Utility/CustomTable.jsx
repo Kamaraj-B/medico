@@ -9,10 +9,18 @@ import {
   TablePagination,
   TextField,
   Box,
+  Card,
+  CardContent,
+  Typography,
+  Stack,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { useState, useMemo } from "react";
 
-export default function CustomTable({ columns, data }) {
+export default function CustomTable({ columns, data, mobileCardRender }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [filterText, setFilterText] = useState("");
@@ -79,6 +87,32 @@ export default function CustomTable({ columns, data }) {
         />
       </Box>
 
+      {isMobile ? (
+        <Box sx={{ p: 1.5, display: "grid", gap: 1.2 }}>
+          {paginatedData.map((row, index) => (
+            <Card key={row.id || index} variant="outlined" sx={{ borderRadius: 2 }}>
+              <CardContent sx={{ p: 1.6 }}>
+                {mobileCardRender ? (
+                  mobileCardRender(row)
+                ) : (
+                  <Stack spacing={0.7}>
+                    {columns.slice(0, 4).map((col) => (
+                      <Box key={col.id} sx={{ display: "flex", justifyContent: "space-between", gap: 1 }}>
+                        <Typography sx={{ fontSize: "0.84rem", color: "#475569", fontWeight: 700 }}>
+                          {col.label}
+                        </Typography>
+                        <Typography sx={{ fontSize: "0.9rem", textAlign: "right", color: "#0f172a" }}>
+                          {col.render ? col.render(row[col.id], row) : String(row[col.id] ?? "-")}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Stack>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </Box>
+      ) : (
       <TableContainer>
         <Table size="small">
           <TableHead>
@@ -88,10 +122,10 @@ export default function CustomTable({ columns, data }) {
                   key={col.id}
                   sx={{
                     fontWeight: 700,
-                    fontSize: "0.8rem",
+                    fontSize: "0.84rem",
                     letterSpacing: "0.04em",
                     textTransform: "uppercase",
-                    color: "#64748b",
+                    color: "#475569",
                     py: 1.4,
                     borderBottom: "1px solid #edf1f8",
                     backgroundColor: "#fafcff",
@@ -138,6 +172,7 @@ export default function CustomTable({ columns, data }) {
           </TableBody>
         </Table>
       </TableContainer>
+      )}
 
       <TablePagination
         component="div"
@@ -152,8 +187,8 @@ export default function CustomTable({ columns, data }) {
           backgroundColor: "#fcfdff",
           "& .MuiTablePagination-toolbar": { minHeight: 52 },
           "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
-            fontSize: "0.82rem",
-            color: "#64748b",
+            fontSize: "0.88rem",
+            color: "#475569",
           },
         }}
       />

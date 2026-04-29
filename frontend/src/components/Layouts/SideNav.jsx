@@ -29,15 +29,17 @@ const navItems = [
   { label: "Users", icon: <PeopleIcon />, route: "/users" },
 ];
 
-export default function SideNav() {
+export default function SideNav({ mobileOpen = false, onMobileClose, isMobile = false }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout } = useContext(AuthContext);
 
   return (
     <Drawer
-      variant="permanent"
-      open
+      variant={isMobile ? "temporary" : "permanent"}
+      open={isMobile ? mobileOpen : true}
+      onClose={onMobileClose}
+      ModalProps={isMobile ? { keepMounted: true } : undefined}
       sx={{
         width: drawerWidth,
         flexShrink: 0,
@@ -67,7 +69,10 @@ export default function SideNav() {
           return (
             <Tooltip key={label} title={label} placement="right">
               <ListItemButton
-                onClick={() => navigate(route)}
+                onClick={() => {
+                  navigate(route);
+                  if (isMobile) onMobileClose?.();
+                }}
                 sx={{
                   py: 1.5,
                   px: 2.4,
@@ -79,6 +84,12 @@ export default function SideNav() {
                   color: active ? "#60a5fa" : "#94a3b8",
                   borderRadius: active ? "0 8px 8px 0" : "8px",
                   "&:hover": { bgcolor: "rgba(51,65,85,0.45)", color: "#e2e8f0" },
+                  "&:focus-visible": {
+                    outline: "3px solid #60a5fa",
+                    outlineOffset: 2,
+                    bgcolor: "rgba(59,130,246,0.16)",
+                    color: "#e2e8f0",
+                  },
                 }}
               >
                 <ListItemIcon sx={{ minWidth: 20, color: "inherit" }}>{icon}</ListItemIcon>
@@ -93,7 +104,7 @@ export default function SideNav() {
       </List>
 
       <Box sx={{ mt: "auto", px: 0 }}>
-        <ListItemButton sx={{ py: 1.5, px: 3, mx: 1, borderRadius: 1, color: "#94a3b8", gap: 1.5 }}>
+        <ListItemButton sx={{ py: 1.5, px: 3, mx: 1, borderRadius: 1, color: "#94a3b8", gap: 1.5, "&:focus-visible": { outline: "3px solid #60a5fa", outlineOffset: 2 } }}>
           <ListItemIcon sx={{ minWidth: 20, color: "inherit" }}>
             <SettingsOutlinedIcon />
           </ListItemIcon>
@@ -104,7 +115,7 @@ export default function SideNav() {
         </ListItemButton>
         <ListItemButton
           onClick={logout}
-          sx={{ py: 1.5, px: 3, mx: 1, borderRadius: 1, color: "#94a3b8", gap: 1.5 }}
+          sx={{ py: 1.5, px: 3, mx: 1, borderRadius: 1, color: "#94a3b8", gap: 1.5, "&:focus-visible": { outline: "3px solid #60a5fa", outlineOffset: 2 } }}
         >
           <ListItemIcon sx={{ minWidth: 20, color: "inherit" }}>
             <Logout />

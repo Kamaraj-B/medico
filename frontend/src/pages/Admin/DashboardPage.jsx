@@ -88,6 +88,10 @@ const primaryActionBtnSx = {
   "&:hover": {
     background: "linear-gradient(90deg, #0284c7 0%, #1d4ed8 100%)",
   },
+  "&:focus-visible": {
+    outline: "3px solid #60a5fa",
+    outlineOffset: 2,
+  },
 };
 const outlinedActionBtnSx = {
   textTransform: "none",
@@ -103,9 +107,13 @@ const outlinedActionBtnSx = {
     borderColor: "#2563eb",
     backgroundColor: "#eff6ff",
   },
+  "&:focus-visible": {
+    outline: "3px solid #60a5fa",
+    outlineOffset: 2,
+  },
 };
 
-const MonthlyChart = ({ data, height = 430 }) => {
+const MonthlyChart = ({ data, height = { xs: "auto", lg: 430 } }) => {
   const visibleData = useMemo(() => {
     if (!data?.length) {
       return FALLBACK_MONTHS.map((label, idx) => ({ label, count: idx + 1 }));
@@ -118,20 +126,20 @@ const MonthlyChart = ({ data, height = 430 }) => {
 
   return (
     <Box sx={{ ...containerCardSx, height }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2.5}>
-        <Typography sx={{ fontFamily: "Manrope", fontSize: 30, fontWeight: 600 }}>
+      <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems={{ xs: "flex-start", sm: "center" }} mb={2.5} gap={1}>
+        <Typography sx={{ fontFamily: "Manrope", fontSize: { xs: 22, md: 30 }, fontWeight: 600 }}>
           Appointments Trend (Monthly)
         </Typography>
         <Stack direction="row" spacing={1}>
           <Button size="small" sx={{ textTransform: "none", bgcolor: "#f1f5f9", color: "#334155", minWidth: 58 }}>
             Line
           </Button>
-          <Button size="small" variant="outlined" sx={{ textTransform: "none", borderColor: "#e2e8f0", color: "#94a3b8", minWidth: 52 }}>
+          <Button size="small" variant="outlined" sx={{ textTransform: "none", borderColor: "#cbd5e1", color: "#64748b", minWidth: 52 }}>
             Bar
           </Button>
         </Stack>
       </Stack>
-      <Box sx={{ height: 300, borderBottom: "1px solid #e2e8f0", borderLeft: "1px solid #e2e8f0", px: 2, pb: 1, position: "relative", display: "flex", alignItems: "flex-end", justifyContent: "space-between", mt: "auto" }}>
+      <Box sx={{ height: { xs: 220, sm: 300 }, borderBottom: "1px solid #e2e8f0", borderLeft: "1px solid #e2e8f0", px: { xs: 1, sm: 2 }, pb: 1, position: "relative", display: "flex", alignItems: "flex-end", justifyContent: "space-between", mt: "auto", gap: { xs: 0.5, sm: 1 } }}>
         {[0,1,2,3].map((i)=>(
           <Box key={i} sx={{ position:"absolute", left:0, right:0, bottom:`${(i+1)*25}%`, borderTop:"1px solid rgba(148,163,184,.25)"}}/>
         ))}
@@ -139,7 +147,7 @@ const MonthlyChart = ({ data, height = 430 }) => {
           <Box
             key={item.label}
             sx={{
-              width: 48,
+              width: { xs: 24, sm: 48 },
               bgcolor:
                 idx === 4
                   ? "#0f5dbd"
@@ -151,14 +159,17 @@ const MonthlyChart = ({ data, height = 430 }) => {
                     : "#b8cde8"
                   : "#f1f5f9",
               borderRadius: "8px 8px 0 0",
-              height: `${(REFERENCE_BAR_HEIGHTS[idx] / 100) * 260}px`,
+              height: {
+                xs: `${(REFERENCE_BAR_HEIGHTS[idx] / 100) * 180}px`,
+                sm: `${(REFERENCE_BAR_HEIGHTS[idx] / 100) * 260}px`,
+              },
             }}
           />
         )) : null}
       </Box>
-      <Stack direction="row" justifyContent="space-between" mt={1.5} px={1}>
+      <Stack direction="row" justifyContent="space-between" mt={1.5} px={1} sx={{ overflowX: "auto", gap: { xs: 2, sm: 1 } }}>
         {visibleData.map((item) => (
-          <Typography key={item.label} sx={{ fontSize: 12, color: "#7c839b" }}>
+          <Typography key={item.label} sx={{ fontSize: 13, color: "#64748b", fontWeight: 500 }}>
             {item.label}
           </Typography>
         ))}
@@ -320,16 +331,16 @@ export default function DashboardPage() {
     <Box sx={{ position: "relative" }}>
       <Stack direction={{ xs: "column", md: "row" }} justifyContent="space-between" gap={2} mb={3}>
         <Box>
-          <Typography sx={{ fontFamily: "Manrope", fontSize: 34, lineHeight: "40px", fontWeight: 700 }}>
+          <Typography sx={{ fontFamily: "Manrope", fontSize: { xs: 24, sm: 34 }, lineHeight: { xs: "32px", sm: "40px" }, fontWeight: 700 }}>
             Dashboard Overview
           </Typography>
          
         </Box>
-        <Stack direction="row" spacing={1.5} alignItems="center">
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} alignItems={{ xs: "stretch", sm: "center" }}>
           <FormControl
             size="small"
             sx={{
-              minWidth: 170,
+              minWidth: { xs: "100%", sm: 170 },
               "& .MuiOutlinedInput-root": { bgcolor: "#fff", borderRadius: 1, boxShadow: "0 1px 3px rgba(15,23,42,.04)" },
             }}
           >
@@ -343,11 +354,11 @@ export default function DashboardPage() {
             variant="contained"
             startIcon={<DownloadOutlinedIcon />}
             onClick={exportCsv}
-            sx={primaryActionBtnSx}
+            sx={{ ...primaryActionBtnSx, width: { xs: "100%", sm: "auto" } }}
           >
             Export
           </Button>
-          <Button variant="outlined" onClick={exportPdf} sx={outlinedActionBtnSx}>
+          <Button variant="outlined" onClick={exportPdf} sx={{ ...outlinedActionBtnSx, width: { xs: "100%", sm: "auto" } }}>
             PDF
           </Button>
         </Stack>
@@ -356,7 +367,7 @@ export default function DashboardPage() {
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: { xs: "1fr", sm: "repeat(2, minmax(0, 1fr))", lg: "repeat(4, minmax(0, 1fr))" },
+          gridTemplateColumns: { xs: "1fr", sm: "repeat(2, minmax(0, 1fr))", xl: "repeat(4, minmax(0, 1fr))" },
           gap: "24px",
           mb: 3,
           width: "100%",
@@ -365,7 +376,7 @@ export default function DashboardPage() {
         {summaryCards.map((card) => (
           <Box key={card.key}>
             <Card sx={{ p: 3, border: "1px solid #e5e7eb", borderRadius: "12px", boxShadow: "0 4px 20px rgba(0, 88, 190, 0.04)" }}>
-              <CardActionArea onClick={() => handleCardClick(card.key)} sx={{ minHeight: 156 }}>
+              <CardActionArea onClick={() => handleCardClick(card.key)} sx={{ minHeight: 156, "&:focus-visible": { outline: "3px solid #60a5fa", outlineOffset: 2, borderRadius: 1.5 } }}>
                 <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
                   <Box sx={{ width: 46, height: 46, borderRadius: 1.2, bgcolor: card.iconBg, color: card.iconColor, display: "grid", placeItems: "center" }}>
                     {card.icon}
@@ -374,10 +385,10 @@ export default function DashboardPage() {
                     {card.badge}
                   </Box>
                 </Stack>
-                <Typography sx={{ mt: 2.5, fontSize: 12, letterSpacing: "0.05em", textTransform: "uppercase", color: "#7c839b", fontWeight: 600 }}>
+                <Typography sx={{ mt: 2.5, fontSize: 12, letterSpacing: "0.05em", textTransform: "uppercase", color: "#64748b", fontWeight: 700 }}>
                   {card.label}
                 </Typography>
-                <Typography sx={{ mt: 0.8, fontFamily: "Manrope", fontSize: 40, lineHeight: 1, fontWeight: 700 }}>
+                <Typography sx={{ mt: 0.8, fontFamily: "Manrope", fontSize: { xs: 32, sm: 40 }, lineHeight: 1, fontWeight: 700 }}>
                   {summary.counts?.[card.key] ?? 0}
                 </Typography>
               </CardActionArea>
@@ -396,11 +407,11 @@ export default function DashboardPage() {
         }}
       >
         <Box>
-          <MonthlyChart data={summary.monthlyAppointments || []} height={430} />
+          <MonthlyChart data={summary.monthlyAppointments || []} />
         </Box>
         <Box>
-          <Box sx={{ ...containerCardSx, height: 430 }}>
-            <Typography sx={{ fontFamily: "Manrope", fontSize: 30, fontWeight: 600, mb: 3 }}>
+          <Box sx={{ ...containerCardSx, height: { xs: "auto", lg: 430 } }}>
+            <Typography sx={{ fontFamily: "Manrope", fontSize: { xs: 22, md: 30 }, fontWeight: 600, mb: 3 }}>
               Appointment Status
             </Typography>
             <Stack spacing={2.4}>
@@ -432,7 +443,7 @@ export default function DashboardPage() {
               <InfoOutlinedIcon sx={{ color: "#2563eb", mt: 0.2 }} />
               <Box>
                 <Typography sx={{ fontWeight: 600, fontSize: 13 }}>System Tip</Typography>
-                <Typography sx={{ fontSize: 12, color: "#64748b" }}>
+                <Typography sx={{ fontSize: 13, color: "#475569" }}>
                   Scheduled appointments for next week are up by 15%.
                 </Typography>
               </Box>
@@ -451,8 +462,8 @@ export default function DashboardPage() {
         }}
       >
         <Box>
-          <Box sx={{ ...containerCardSx, height: 390 }}>
-            <Typography sx={{ fontFamily: "Manrope", fontSize: 30, fontWeight: 600, mb: 3 }}>
+          <Box sx={{ ...containerCardSx, height: { xs: "auto", lg: 390 } }}>
+            <Typography sx={{ fontFamily: "Manrope", fontSize: { xs: 22, md: 30 }, fontWeight: 600, mb: 3 }}>
               Appointment Mode Breakdown
             </Typography>
             <Grid container spacing={2}>
@@ -471,7 +482,7 @@ export default function DashboardPage() {
                         </Typography>
                       </Stack>
                       <Stack direction="row" alignItems="baseline" gap={0.8}>
-                        <Typography sx={{ fontFamily: "Manrope", fontWeight: 700, fontSize: 36 }}>
+                        <Typography sx={{ fontFamily: "Manrope", fontWeight: 700, fontSize: { xs: 28, md: 36 } }}>
                           {count}
                         </Typography>
                         <Typography sx={{ fontSize: 13, color: "#64748b" }}>
@@ -497,9 +508,9 @@ export default function DashboardPage() {
           </Box>
         </Box>
         <Box>
-          <Box sx={{ ...containerCardSx, height: 390 }}>
+          <Box sx={{ ...containerCardSx, height: { xs: "auto", lg: 390 } }}>
             <Stack direction="row" justifyContent="space-between" mb={3}>
-              <Typography sx={{ fontFamily: "Manrope", fontSize: 30, fontWeight: 600 }}>
+              <Typography sx={{ fontFamily: "Manrope", fontSize: { xs: 22, md: 30 }, fontWeight: 600 }}>
                 Facility Verification
               </Typography>
               <Typography sx={{ color: "#2170e4", fontSize: 14, fontWeight: 600 }}>
@@ -519,9 +530,9 @@ export default function DashboardPage() {
                 </Typography>
               </Stack>
             </Box>
-            <Box sx={{ border: "1px dashed #cbd5e1", borderRadius: 2, p: 4, textAlign: "center", color: "#94a3b8" }}>
+            <Box sx={{ border: "1px dashed #cbd5e1", borderRadius: 2, p: 4, textAlign: "center", color: "#64748b" }}>
               <DomainOutlinedIcon sx={{ fontSize: 36, mb: 0.5 }} />
-              <Typography sx={{ fontSize: 13 }}>
+              <Typography sx={{ fontSize: 13, fontWeight: 500 }}>
                 No facilities pending verification
               </Typography>
             </Box>
@@ -533,12 +544,16 @@ export default function DashboardPage() {
         color="primary"
         sx={{
           position: "fixed",
-          right: 32,
-          bottom: 32,
+          right: { xs: 16, sm: 32 },
+          bottom: { xs: 16, sm: 32 },
           width: 56,
           height: 56,
           bgcolor: "#2170e4",
           boxShadow: "0 12px 24px rgba(33,112,228,.35)",
+          "&:focus-visible": {
+            outline: "3px solid #60a5fa",
+            outlineOffset: 2,
+          },
         }}
       >
         <AddIcon />

@@ -19,6 +19,8 @@ import {
   OutlinedInput,
   Tooltip,
   IconButton,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import GroupAddOutlinedIcon from "@mui/icons-material/GroupAddOutlined";
@@ -88,8 +90,11 @@ const secondaryActionBtnSx = {
     backgroundColor: "#eff6ff",
   },
 };
+const touchIconBtnSx = { width: 40, height: 40 };
 
 export default function FacilityPage() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [open, setOpen] = useState(false);
   const [facilityData, setFacilityData] = useState([]);
   const [editingFacility, setEditingFacility] = useState(null);
@@ -207,12 +212,12 @@ export default function FacilityPage() {
       render: (_, row) => (
         <Stack direction="row" spacing={1}>
           <Tooltip title="Edit facility">
-            <IconButton color="primary" onClick={() => handleEdit(row)}>
+            <IconButton color="primary" onClick={() => handleEdit(row)} sx={touchIconBtnSx}>
               <EditOutlinedIcon />
             </IconButton>
           </Tooltip>
           <Tooltip title="Map doctors">
-            <IconButton color="info" onClick={() => handleOpenMapping(row)}>
+            <IconButton color="info" onClick={() => handleOpenMapping(row)} sx={touchIconBtnSx}>
               <GroupAddOutlinedIcon />
             </IconButton>
           </Tooltip>
@@ -221,6 +226,7 @@ export default function FacilityPage() {
               color="success"
             onClick={() => handleStatusUpdate(row, "approved")}
             disabled={row.verificationStatus === "approved"}
+            sx={touchIconBtnSx}
             >
               <CheckCircleOutlinedIcon />
             </IconButton>
@@ -230,6 +236,7 @@ export default function FacilityPage() {
               color="error"
             onClick={() => handleStatusUpdate(row, "rejected")}
             disabled={row.verificationStatus === "rejected"}
+            sx={touchIconBtnSx}
             >
               <HighlightOffOutlinedIcon />
             </IconButton>
@@ -243,25 +250,20 @@ export default function FacilityPage() {
     <Box
       sx={{
         backgroundColor: "#fff",
-        px: 3,
-        py: 2.5,
+        px: { xs: 1.5, sm: 3 },
+        py: { xs: 1.8, sm: 2.5 },
         borderRadius: 3,
         border: "1px solid #e8edf7",
         boxShadow: "0 8px 24px rgba(16, 24, 40, 0.06)",
         mb: 2,
       }}
     >
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={3}
-      >
+      <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems={{ xs: "stretch", sm: "center" }} mb={3} spacing={1.2}>
         <Typography variant="h5">Facility Details</Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={openModel} sx={primaryActionBtnSx}>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={openModel} sx={{ ...primaryActionBtnSx, width: { xs: "100%", sm: "auto" } }}>
           Add Facility
         </Button>
-      </Box>
+      </Stack>
 
       <CustomTable data={facilityData} columns={columns} />
 
@@ -281,7 +283,7 @@ export default function FacilityPage() {
         }}
       />
 
-      <Dialog open={mappingOpen} onClose={() => setMappingOpen(false)} fullWidth maxWidth="sm">
+      <Dialog open={mappingOpen} onClose={() => setMappingOpen(false)} fullWidth maxWidth="sm" fullScreen={isMobile}>
         <DialogTitle>
           Map Doctors to {selectedFacility?.name || "Facility"}
         </DialogTitle>
@@ -314,11 +316,11 @@ export default function FacilityPage() {
             </Select>
           </FormControl>
         </DialogContent>
-        <DialogActions>
-          <Button variant="outlined" onClick={() => setMappingOpen(false)} sx={secondaryActionBtnSx}>
+        <DialogActions sx={{ flexDirection: { xs: "column-reverse", sm: "row" }, gap: 1, p: 2 }}>
+          <Button variant="outlined" onClick={() => setMappingOpen(false)} sx={{ ...secondaryActionBtnSx, width: { xs: "100%", sm: "auto" } }}>
             Cancel
           </Button>
-          <Button variant="contained" onClick={handleSaveMapping} sx={primaryActionBtnSx}>
+          <Button variant="contained" onClick={handleSaveMapping} sx={{ ...primaryActionBtnSx, width: { xs: "100%", sm: "auto" } }}>
             Save Mapping
           </Button>
         </DialogActions>
