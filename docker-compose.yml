@@ -1,0 +1,37 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: medico-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  server:
+    build: ./server
+    container_name: medico-server
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./.env
+    environment:
+      - PORT=3000
+      - MONGODB_URL=mongodb://mongo:27017/medico
+      - FRONTEND_URL=http://localhost
+      - API_BASE_URL=http://localhost:3000
+    depends_on:
+      - mongo
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:3000/api
+    container_name: medico-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+
+volumes:
+  mongo_data:
