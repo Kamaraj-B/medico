@@ -1,6 +1,7 @@
 const { add } = require("winston");
 const User = require("../models/user.model");
 const verifyGoogleToken = require("../utils/verifyGoogleToken");
+const bcrypt = require("bcryptjs");
 
 const normalizeOptionalMobile = (value) => {
   if (value === undefined || value === null) return undefined;
@@ -217,6 +218,8 @@ exports.createUser = async (req, res) => {
         username,
         email: normalizedEmail,
         role: role || "user",
+        accountStatus: "active",
+        requirePasswordChange: false,
         specialization,
         experience,
         availableDays,
@@ -235,12 +238,22 @@ exports.createUser = async (req, res) => {
         // Required by schema; manual users do not have OAuth token.
         googleAccessToken: `manual-${Date.now()}`,
       };
+      let temporaryPassword = "";
+      if ((role || "user") === "doctor") {
+        temporaryPassword = `Doc${Math.random().toString(36).slice(2, 8)}9`;
+        userPayload.passwordHash = await bcrypt.hash(temporaryPassword, 12);
+        userPayload.requirePasswordChange = true;
+      }
       if (normalizedMobile !== undefined) userPayload.mobile = normalizedMobile;
       if (normalizedAlternateMobile !== undefined)
         userPayload.alternateMobile = normalizedAlternateMobile;
 
       const user = await User.create(userPayload);
-      return res.status(201).json({ message: "User created successfully", user });
+      return res.status(201).json({
+        message: "User created successfully",
+        user,
+        temporaryPassword: temporaryPassword || undefined,
+      });
     }
   } catch (error) {
     return res.status(500).json({ error: error.message || "Server Error" });

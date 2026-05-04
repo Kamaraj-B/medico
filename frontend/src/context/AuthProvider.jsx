@@ -39,8 +39,10 @@ const AuthProvider = ({ children }) => {
    // const token = tokenStr ? JSON.parse(tokenStr) : null;
     const result = await dispatch(refreshToken());
     if (result.payload) {
-      setRole(result.payload.role || (user?.role ?? null));
-      scheduleTokenCheck(result.payload.exp);
+      setRole(result.payload?.token?.role || (user?.role ?? null));
+      if (result.payload?.token?.exp) {
+        scheduleTokenCheck(result.payload.token.exp);
+      }
       setShowExpiryModal(false);
     } else {
       handleLogout();
@@ -60,7 +62,7 @@ const AuthProvider = ({ children }) => {
           if (parsedToken.exp && Math.floor(Date.now() / 1000) < parsedToken.exp) {
             const result = await dispatch(fetchUserProfile());
             if (result.payload && mounted) {
-              setRole(result.payload.role || parsedToken.role || null);
+              setRole(result.payload.user?.role || parsedToken.role || null);
               scheduleTokenCheck(parsedToken.exp);
             }
           } else {
@@ -71,7 +73,7 @@ const AuthProvider = ({ children }) => {
           // Rehydrate from cookie session even when localStorage token is empty.
           const result = await dispatch(fetchUserProfile());
           if (result.payload && mounted) {
-            setRole(result.payload.role || null);
+            setRole(result.payload.user?.role || null);
             const tokenInfoAfterVerify = localStorage.getItem("tokenInfo");
             if (tokenInfoAfterVerify) {
               const parsedToken = JSON.parse(tokenInfoAfterVerify);

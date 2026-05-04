@@ -1,144 +1,142 @@
 import MenuIcon from "@mui/icons-material/Menu";
+import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
+import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import {
   AppBar,
   Toolbar,
   Typography,
   Box,
   Button,
-  Avatar,
   IconButton,
-  Paper,
   Drawer,
   List,
-  ListItem,
+  ListItemButton,
   ListItemText,
   useMediaQuery,
   useTheme,
+  Stack,
 } from "@mui/material";
-import { styled } from "@mui/system";
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import React, { useState, useContext } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { AuthContext } from "../../context/AuthProvider";
-import { useContext } from "react";
-
-const NavWrapper = styled(Paper)(() => ({
-  borderRadius: "20px 20px 0 0",
-  padding: "0 24px",
-  backgroundColor: "#f8f9fc",
-  boxShadow: "none",
-  overflow: "hidden",
-}));
 
 const navItems = [
-  { text: "Home", to: "/" },
   { text: "Appointments", to: "/appointments" },
-  { text: "Profile", to: "/profile" },
-  { text: "Logout" },
+  { text: "Records", to: "/profile" },
+  { text: "Messages", to: "/chat" },
+  { text: "Find Care", to: "/" },
 ];
 
 const NavBar = () => {
-    const { logout } = useContext(AuthContext);
+  const { logout } = useContext(AuthContext);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const user = useSelector((state) => state.auth.user);
-
-  const toggleDrawer = () => {
-    setDrawerOpen(!drawerOpen);
-  };
+  const location = useLocation();
 
   return (
-    <>
-      <AppBar
-        position="static"
-        elevation={0}
-        sx={{ backgroundColor: "#e6e7ed", overflowX: "hidden" }}
+    <AppBar
+      position="fixed"
+      elevation={0}
+      sx={{
+        backgroundColor: "rgba(255,255,255,0.86)",
+        backdropFilter: "blur(8px)",
+        borderBottom: "1px solid #e2e8f0",
+        color: "#0f172a",
+      }}
+    >
+      <Toolbar
+        sx={{
+          justifyContent: "space-between",
+          minHeight: "64px !important",
+          px: { xs: 1.5, sm: 2.5, md: 4 },
+          maxWidth: 1280,
+          width: "100%",
+          mx: "auto",
+        }}
       >
-        <NavWrapper>
-          <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
-            {/* Logo */}
-            <Box display="flex" alignItems="center" gap={1}>
-              <img src="/logo.png" alt="logo" width={100} height={90} />
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: 700,
-                  color: "#1a1a1a",
-                  display: { xs: "none", sm: "block" },
-                }}
-              >
-                {/* Optional Title */}
-              </Typography>
-            </Box>
-
-            {/* Desktop Navigation */}
-            {!isMobile && (
-              <Box display="flex" alignItems="center" gap={3}>
-                {navItems.map(({ text, to }) => (
+        <Stack direction="row" alignItems="center" spacing={{ xs: 1.5, md: 5 }}>
+          <Typography sx={{ fontFamily: "Manrope", fontWeight: 800, fontSize: 27, color: "#131b2e", letterSpacing: "-0.01em" }}>
+            MedConnect
+          </Typography>
+          {!isMobile ? (
+            <Stack direction="row" spacing={1.8}>
+              {navItems.map(({ text, to }) => {
+                const active = location.pathname === to;
+                return (
                   <Button
                     key={text}
                     component={Link}
                     to={to}
                     sx={{
-                      color: "#1a1a1a",
-                      fontWeight: 600,
                       textTransform: "none",
-                      fontSize: "0.9rem",
+                      fontWeight: active ? 700 : 600,
+                      fontSize: 13.5,
+                      color: active ? "#2563eb" : "#475569",
+                      borderBottom: active ? "2px solid #2563eb" : "2px solid transparent",
+                      borderRadius: 0,
+                      px: 0.6,
+                      minWidth: "auto",
                     }}
-                    onClick={text === "Logout" && logout}
                   >
-                    {user.role === "doctor" && text==="Appointments" ? "Patient history" : text}
+                    {text}
                   </Button>
-                ))}
+                );
+              })}
+            </Stack>
+          ) : null}
+        </Stack>
 
-                <Avatar
-                  src={user?.profileImage}
-                  alt="User Avatar"
-                  sx={{ ml: 1 }}
-                />
+        {!isMobile ? (
+          <Stack direction="row" alignItems="center" spacing={1.6}>
+            <Button
+              sx={{
+                textTransform: "none",
+                fontWeight: 700,
+                color: "#dc2626",
+                backgroundColor: "#fef2f2",
+                border: "1px solid #fee2e2",
+                borderRadius: 999,
+                px: 1.8,
+                fontSize: 12.5,
+                minWidth: "auto",
+              }}
+            >
+              Emergency
+            </Button>
+            <IconButton sx={{ width: 40, height: 40 }}>
+              <NotificationsNoneOutlinedIcon />
+            </IconButton>
+            <IconButton component={Link} to="/profile" sx={{ width: 40, height: 40 }}>
+              <AccountCircleOutlinedIcon />
+            </IconButton>
+          </Stack>
+        ) : (
+          <>
+            <IconButton onClick={() => setDrawerOpen(true)}>
+              <MenuIcon />
+            </IconButton>
+            <Drawer anchor="right" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+              <Box width={260} p={2}>
+                <List>
+                  {navItems.map(({ text, to }) => (
+                    <ListItemButton key={text} component={Link} to={to} onClick={() => setDrawerOpen(false)}>
+                      <ListItemText primary={text} />
+                    </ListItemButton>
+                  ))}
+                  <ListItemButton component={Link} to="/profile" onClick={() => setDrawerOpen(false)}>
+                    <ListItemText primary="Profile" />
+                  </ListItemButton>
+                  <ListItemButton onClick={logout}>
+                    <ListItemText primary="Logout" />
+                  </ListItemButton>
+                </List>
               </Box>
-            )}
-
-            {/* Mobile Navigation Toggle */}
-            {isMobile && (
-              <>
-                <IconButton
-                  onClick={toggleDrawer}
-                  sx={{ backgroundColor: "#edeef2" }}
-                >
-                  <MenuIcon />
-                </IconButton>
-                <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer}>
-                  <Box width={220} p={2}>
-                    <List>
-                      {navItems.map(({ text, to }) => (
-                        <ListItem
-                          button
-                          key={text}
-                          component={Link}
-                          to={to}
-                          onClick={toggleDrawer}
-                        >
-                          <ListItemText primary={text} />
-                        </ListItem>
-                      ))}
-                    </List>
-                  </Box>
-                </Drawer>
-              </>
-            )}
-          </Toolbar>
-        </NavWrapper>
-      </AppBar>
-
-      {/* Global CSS override to hide horizontal scroll */}
-      <style>{`
-        body {
-          overflow-x: hidden;
-        }
-      `}</style>
-    </>
+            </Drawer>
+          </>
+        )}
+      </Toolbar>
+    </AppBar>
   );
 };
 
