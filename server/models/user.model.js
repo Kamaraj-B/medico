@@ -32,6 +32,18 @@ const paymentDetailsSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const doctorVerificationSchema = new mongoose.Schema(
+  {
+    registrationNumber: { type: String, trim: true },
+    medicalCouncil: { type: String, trim: true },
+    registrationYear: { type: Number, min: 1950, max: 2100 },
+    degreeCategory: { type: String, enum: ["undergraduate", "postgraduate"] },
+    degree: { type: String, trim: true },
+    university: { type: String, trim: true },
+  },
+  { _id: false }
+);
+
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, trim: true },
 
@@ -70,6 +82,38 @@ const userSchema = new mongoose.Schema({
     enum: ["user", "admin", "doctor", "pharmacyOwner"],
     default: "user",
   },
+  accountStatus: {
+    type: String,
+    enum: ["active", "pendingApproval", "rejected", "suspended"],
+    default: "active",
+  },
+  requirePasswordChange: {
+    type: Boolean,
+    default: false,
+  },
+  passwordHash: {
+    type: String,
+    trim: true,
+    default: "",
+  },
+  approvedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    default: null,
+  },
+  approvedAt: {
+    type: Date,
+    default: null,
+  },
+  rejectedReason: {
+    type: String,
+    trim: true,
+    default: "",
+  },
+  reviewedAt: {
+    type: Date,
+    default: null,
+  },
 
   address: { type: String, trim: true },
   profileImage: { type: String, trim: true },
@@ -79,6 +123,10 @@ const userSchema = new mongoose.Schema({
   },
   paymentDetails: {
     type: paymentDetailsSchema,
+    default: {},
+  },
+  doctorVerification: {
+    type: doctorVerificationSchema,
     default: {},
   },
 
@@ -133,13 +181,22 @@ const userSchema = new mongoose.Schema({
   },
   googleAccessToken: {
     type: String,
-    required:true
+    default: "",
   },
 
   createdAt: {
     type: Date,
     default: Date.now,
   },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+userSchema.pre("save", function updateTimestamp(next) {
+  this.updatedAt = new Date();
+  next();
 });
 
 const User = mongoose.model("User", userSchema);

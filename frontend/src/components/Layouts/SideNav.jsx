@@ -15,6 +15,7 @@ import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import EventNoteIcon from "@mui/icons-material/EventNote";
 import PeopleIcon from "@mui/icons-material/People";
 import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
+import HowToRegIcon from "@mui/icons-material/HowToReg";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthProvider";
@@ -26,6 +27,7 @@ const navItems = [
   { label: "Facilities", icon: <LocalHospitalIcon />, route: "/facilities" },
   { label: "Appointments", icon: <EventNoteIcon />, route: "/appointments" },
   { label: "Doctors", icon: <MedicalServicesIcon />, route: "/doctors" },
+  { label: "Doctor Requests", icon: <HowToRegIcon />, route: "/doctor-requests" },
   { label: "Users", icon: <PeopleIcon />, route: "/users" },
 ];
 

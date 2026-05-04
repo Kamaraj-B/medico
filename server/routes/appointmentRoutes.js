@@ -5,6 +5,7 @@ const appointmentController = require('../controllers/appointmentController');
 const {protect} = require('../middlewares/auth.middleware');
 
 router.post('/',protect,appointmentController.createAppointment);
+router.get('/booked-slots', appointmentController.getBookedSlots);
 router.get('/',protect,appointmentController.getAppointments);
 router.get('/admin/summary', protect, appointmentController.getAdminSummary);
 router.get('/:id',protect,appointmentController.getAppointmentById);
