@@ -5,7 +5,10 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const path = require("path");
 const rateLimit = require("express-rate-limit");
+const swaggerUi = require("swagger-ui-express");
 require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
+
+const openApiSpec = require("./docs/openapi.spec");
 
 const app = express();
 
@@ -26,6 +29,14 @@ app.set("trust proxy", 1);
 app.use(
   helmet({
     crossOriginResourcePolicy: false,
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: {
+        "script-src": ["'self'", "'unsafe-inline'"],
+        "style-src": ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "https:"],
+      },
+    },
   })
 );
 app.use(compression());
@@ -59,6 +70,24 @@ app.use("/uploads", express.static(path.join(__dirname, "/assets")));
 app.get("/health", (_req, res) => {
   res.status(200).json({ status: "ok", uptime: process.uptime() });
 });
+
+app.get("/api/docs/openapi.json", (_req, res) => {
+  res.json(openApiSpec);
+});
+
+app.use(
+  "/api/docs",
+  swaggerUi.serve,
+  swaggerUi.setup(openApiSpec, {
+    customSiteTitle: "Medico API",
+    swaggerOptions: {
+      persistAuthorization: true,
+      docExpansion: "list",
+      filter: true,
+      tryItOutEnabled: true,
+    },
+  })
+);
 
 // Routes
 app.use("/api/users", userRoutes);
