@@ -1,4 +1,5 @@
 require('dotenv').config();
+const mongoose = require('mongoose');
 const Appointment = require('../models/appointment.model');
 const User = require('../models/user.model');
 const Facility = require('../models/facility.model');
@@ -204,6 +205,47 @@ exports.createAppointment = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(400).json({ message: error.message });
+  }
+};
+
+/** Time slots already held for a doctor at a facility on a calendar day (for booking UI). */
+exports.getBookedSlots = async (req, res) => {
+  try {
+    const { doctorId, facilityId, date } = req.query;
+    if (!doctorId || !facilityId || !date) {
+      return res.status(400).json({ message: 'doctorId, facilityId, and date (YYYY-MM-DD) are required' });
+    }
+    if (!mongoose.Types.ObjectId.isValid(doctorId) || !mongoose.Types.ObjectId.isValid(facilityId)) {
+      return res.status(400).json({ message: 'Invalid doctorId or facilityId' });
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date).trim())) {
+      return res.status(400).json({ message: 'date must be YYYY-MM-DD' });
+    }
+
+    const dayStart = new Date(`${String(date).trim()}T00:00:00.000Z`);
+    const dayEnd = new Date(dayStart);
+    dayEnd.setUTCDate(dayEnd.getUTCDate() + 1);
+
+    const rows = await Appointment.find({
+      doctorId,
+      facilityId,
+      date: { $gte: dayStart, $lt: dayEnd },
+      status: { $in: ['pending', 'scheduled'] },
+    })
+      .select('timeSlot')
+      .lean();
+
+    const slots = rows
+      .map((a) => ({
+        start: a.timeSlot?.start,
+        end: a.timeSlot?.end,
+      }))
+      .filter((s) => s.start && s.end);
+
+    return res.json({ slots });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: error.message });
   }
 };
 

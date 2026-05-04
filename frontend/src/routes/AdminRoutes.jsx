@@ -2,6 +2,7 @@ import SideNav from "../components/Layouts/SideNav";
 import AppointmentsPage from "../pages/Admin/AppointmentsPage";
 import FacilityPage from "../pages/Admin/FacilityPage";
 import DoctorsPage from "../pages/Admin/DoctorsPage";
+import DoctorRequestsPage from "../pages/Admin/DoctorRequestsPage";
 import UserPage from "../pages/Admin/UserPage";
 import DashboardPage from "../pages/Admin/DashboardPage";
 import Login from "../pages/Login";
@@ -137,6 +138,7 @@ const AdminRoutes = () => {
             <Route path="/facilities" element={<FacilityPage />} />
             <Route path="/appointments" element={<AppointmentsPage />} />
             <Route path="/doctors" element={<DoctorsPage />} />
+            <Route path="/doctor-requests" element={<DoctorRequestsPage />} />
             <Route path="/users" element={<UserPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
